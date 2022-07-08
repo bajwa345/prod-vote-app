@@ -53,7 +53,7 @@ exports.listVoters = (req, res, next) => {
         sql.input('searchStr', msSql.VarChar(127), req.body.search);
 
         //console.log("list voters");
-        sql.execute('GetVotersList')
+        sql.execute('TGetVotersList')
         .then((result) => {
             conn.close();
             //console.log("voters count " + result.recordset.length );
@@ -433,7 +433,7 @@ function printParchiSlips(doc, blockcode, cnic, recordsets) {
         else doc.font('Jameel Noori Nastaleeq').fontSize(13).text(items[c].vtr_addressUrdu.split(' ').reverse().join(' '), xr-18+40, y + 21 + (rowh*3), { align: 'right', width: 334 })
 
         doc.font('Jameel Noori Nastaleeq').fontSize(12)
-        .text(items[c].vtr_pollingStation.split(' ').reverse().join(' ').replace(")", "( ").replace("(", " )"), xr+4-440, y + 20 + (rowh*4), { align: 'right', width: 334 })
+        .text(items[c].vtr_pollingStation.split(' ').reverse().join(' ').replace(")", "( ").replace("(", " )") + "-" + items[c].vtr_psNumber, xr+4-440, y + 20 + (rowh*4), { align: 'right', width: 334 })
 
         let ltext = '';
         if(candi.es_name == 'bat' ) ltext = 'بلے پر مہر لگائیں';
