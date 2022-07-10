@@ -9,7 +9,7 @@ module.exports = app => {
     router.get("/get-voter-basic-details/:icnic", checkAuth, voters.getVoterBasicDetails);
 	router.post("/update-voter-details", checkAuth, voters.updateVoterDetails);
     router.post("/pdf-voter-parchi", checkAuth, voters.downloadVoterParchiPdf);
-    router.get("/get-pdf-voter-parchi:/iblockcode", checkAuth, voters._downloadVoterParchiPdf);
+    router.get("/get-pdf-voter-parchi/:iblockcode", voters._downloadVoterParchiPdf);
 
 	app.use('/api/voters', router);
 };
