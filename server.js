@@ -5,7 +5,7 @@ const cors = require("cors");
 const app = express();
 
 var corsOptions = {
-  origin: "http://www.voogleapp.com"
+  origin: "http://manager.voogleapp.com"
 };
 
 app.use(cors(corsOptions));
