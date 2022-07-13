@@ -71,7 +71,7 @@ exports.appSignIn = (req, res, next) => {
                     totalReachableVotes : 0
                 });
             }
-            
+
         })
         .catch((err) => {
             console.log(err);
@@ -169,7 +169,7 @@ exports.appSignUp = async (req, res, next) => {
             });
         }
         else cnId = _cnId.cn_id;
-    
+
         getUserIdFromUsername(req.body.username).then( (_user) => {
             if(_user != null && _user > 0){
                 //console.log("error - user already exists");
@@ -247,7 +247,7 @@ exports.appChangePassword = (req, res, next) => {
                     message: "User not Found",
                 });
             }
-            
+
             fetchedUser = resultSet.recordset[0];
 
             ///comparing bcrypting////
@@ -328,7 +328,7 @@ exports.appForgetPassword = (req, res, next) => {
                     message: "User not found",
                 });
             }
-            else {  
+            else {
 
                 sql.query(
                     "update tbl_appusers set aur_password = "+ req.body.newpassword +" where aur_isManager = 0 and aur_isActive = 1 and aur_userName ='" +
@@ -517,7 +517,7 @@ exports.downloadFamilyVotersDataByCnic = (req, res, next) => {
 
             conn.close();
             //console.log(result.recordset != null && result.recordset.length > 0 ? result.recordset[0].totalrows : 0);
-            
+
             return res.status(200).json({
                 message: "Data is Attached",
                 items: result.recordset,
@@ -543,7 +543,7 @@ exports.downloadFamilyVotersDataByCnic = (req, res, next) => {
 exports.downloadBlockcodeVotersData = (req, res, next) => {
 
     const conn = new msSql.ConnectionPool(config.dbConfig);
-    console.log("download blockcode voters data api called " + req.params.blockcode);
+    //console.log("download blockcode voters data api called " + req.params.blockcode);
     let blockCode = req.params.blockcode;
 
     conn.connect()
@@ -560,7 +560,50 @@ exports.downloadBlockcodeVotersData = (req, res, next) => {
 
             conn.close();
             console.log(result.recordset != null && result.recordset.length > 0 ? result.recordset[0].totalrows : 0);
-            
+
+            return res.status(200).json({
+                message: "Data is Attached",
+                items: result.recordset,
+                rows_count: result.recordset != null && result.recordset.length > 0 ? result.recordset[0].totalrows : 0
+            });
+        })
+        .catch(function (err) {
+            console.log(err);
+            if(conn != null) conn.close();
+            return res.status(500).json({
+                message: "Execution Failed",
+            });
+        });
+    })
+    .catch(function (err) {
+        console.log(err);
+        return res.status(500).json({
+            message: "No Storage Connection",
+        });
+    });
+};
+
+exports.downloadBlockcodeVotersGenderData = (req, res, next) => {
+
+    const conn = new msSql.ConnectionPool(config.dbConfig);
+    //console.log("download blockcode voters data api called " + req.params.blockcode);
+    let blockCode = req.params.blockcode;
+
+    conn.connect()
+    .then(() => {
+        const sql = new msSql.Request(conn);
+
+        if(blockCode){
+            sql.input('iblockcode', msSql.VarChar(15), blockCode);
+            sql.input('igender', msSql.VarChar(15), req.params.gender);
+        }
+
+        sql.execute('API_GetBlockCodeVotersData')
+        .then((result) => {
+
+            conn.close();
+            console.log(result.recordset != null && result.recordset.length > 0 ? result.recordset[0].totalrows : 0);
+
             return res.status(200).json({
                 message: "Data is Attached",
                 items: result.recordset,

@@ -18,7 +18,7 @@ exports.listVoters = (req, res, next) => {
     conn.connect().then(() => {
         const sql = new msSql.Request(conn);
 
-        //console.log(util.inspect(req.body, {showHidden: false, depth: null, colors: true}));
+        console.log(util.inspect(req.body, {showHidden: false, depth: null, colors: true}));
 
         sql.input('icanid', msSql.VarChar(6), req.userData.canId);
         if(req.body.ipollingstationid && req.body.ipollingstationid != ''){
@@ -261,6 +261,64 @@ exports.updateVoterDetails = (req, res, next) => {
     });
 }
 
+exports._downloadVoterParchiPdf = (req, res, next) => {
+    const conn = new msSql.ConnectionPool(config.dbConfig);
+
+    //console.log("download voter parchi pdf");
+    conn.connect().then(() => {
+        const sql = new msSql.Request(conn);
+
+        //console.log(util.inspect(req.body, {showHidden: false, depth: null, colors: true}));
+
+        var iblockcode = req.params.iblockcode;
+        sql.input('icanid', msSql.VarChar(6), '1');
+        sql.input('iblockcode', msSql.VarChar(15), iblockcode);
+
+        sql.execute('GetVoterParchisList')
+        .then((result) => {
+            conn.close();
+
+            //console.log(util.inspect(result.recordsets, {showHidden: false, depth: null, colors: true}));
+
+            let doc = new PDFDocument({ margin: 0, bufferPages: true });
+            doc.info['Title'] = 'Voter Parchi ' + iblockcode;
+            doc.info['Author'] = 'Voogle';
+
+            printParchiSlips(doc, iblockcode, '', result.recordsets);
+            //doc.pipe(fs.createWriteStream('files/voterparchi.pdf'));
+
+            // to open in browser tab
+            /*const stream = doc.pipe(res);
+            stream.on('finish', () => {
+                res.end();
+            });*/
+
+            const stream = res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'Transfer-Encoding': 'chunked',
+                'Content-disposition': 'attachment;filename=voterparchi'+ '_' + iblockcode +'.pdf',
+            });
+            doc.on('data', (chunk) => stream.write(chunk));
+            doc.on('end', () => stream.end());
+
+
+        })
+        .catch(function (err) {
+            console.log(err);
+            conn.close();
+            res.status(501).json({
+            message: "Execution Failed",
+            });
+        });
+    })
+    .catch(function (err) {
+        console.log(err);
+        res.status(500).json({
+        message: "No Storage Connection",
+        });
+    });
+}
+
 exports.downloadVoterParchiPdf = (req, res, next) => {
     const conn = new msSql.ConnectionPool(config.dbConfig);
 
@@ -433,7 +491,7 @@ function printParchiSlips(doc, blockcode, cnic, recordsets) {
         else doc.font('Jameel Noori Nastaleeq').fontSize(13).text(items[c].vtr_addressUrdu.split(' ').reverse().join(' '), xr-18+40, y + 21 + (rowh*3), { align: 'right', width: 334 })
 
         doc.font('Jameel Noori Nastaleeq').fontSize(12)
-        .text(items[c].vtr_pollingStation.split(' ').reverse().join(' ').replace(")", "( ").replace("(", " )"), xr+4-440, y + 20 + (rowh*4), { align: 'right', width: 334 })
+        .text(items[c].vtr_pollingStation.split(' ').reverse().join(' ').replace(")", "( ").replace("(", " )") + " - " + items[c].vtr_psNumber, xr+4-440, y + 20 + (rowh*4), { align: 'right', width: 334 })
 
         let ltext = '';
         if(candi.es_name == 'bat' ) ltext = 'بلے پر مہر لگائیں';
