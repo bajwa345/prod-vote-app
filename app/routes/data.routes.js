@@ -11,6 +11,7 @@ module.exports = app => {
 	router.post("/upload-voter-location", data.updateVoterLocation );
 	router.post("/upload-complaint-report", data.reportComplaint );
 	router.get("/download-blockcode-voters/:blockcode", data.downloadBlockcodeVotersData);
+	router.get("/download-blockcode-gender-voters/:blockcode/:gender", data.downloadBlockcodeVotersGenderData);
 	router.get("/download-family-voters/:cnic", data.downloadFamilyVotersDataByCnic);
     router.get("/download-blockcode-list/:userid", data.downloadBlockcodeListData);
     router.get("/download-pollinglocation-list/:userid", data.downloadPollingLocationListData);
