@@ -6,8 +6,10 @@ module.exports = app => {
 	router.put("/list-appusers", checkAuth, appusers.listAppUsers);
 	router.post("/new-appuser", checkAuth, appusers.newAppUser);
 	router.post("/update-appuser", checkAuth, appusers.updateAppUser);
-	router.post("/reset-appuser-pssword", checkAuth, appusers.resetAppUserPassword);
+	router.post("/reset-appuser-password", checkAuth, appusers.resetAppUserPassword);
 	router.post("/register-user", checkAuth, appusers.registerUser);
+	router.post("/delete-appuser", checkAuth, appusers.deleteAppUser);
+	router.post("/delete-all-appuser", checkAuth, appusers.deleteAllAppUser);
 
 	app.use('/api/appusers', router);
 };
