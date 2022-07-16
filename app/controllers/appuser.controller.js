@@ -245,6 +245,92 @@ exports.resetAppUserPassword = (req, res, next) => {
     });
 }
 
+exports.deleteAppUser = (req, res, next) => {
+    const conn = new msSql.ConnectionPool(config.dbConfig);
+
+    conn.connect().then(() => {
+        const sql = new msSql.Request(conn);
+
+        sql.query(
+            "DELETE FROM tbl_appusers WHERE aur_id = '"+ req.body.userId +"'"
+        )
+        .then((resultSet) => {
+                conn.close();
+
+                //console.log(util.inspect(resultSet.rowsAffected, {showHidden: false, depth: null, colors: true}));
+
+                if (resultSet.rowsAffected.length === 0 || (resultSet.rowsAffected.length > 0 && resultSet.rowsAffected[0] === 0)) {
+                    res.status(500).json({
+                        type: "error",
+                        message: "Operation Failed",
+                    });
+                }
+                else {
+                    res.status(200).json({
+                        type: "success",
+                        message: "User Deleted Successfull",
+                    });
+                }
+            })
+            .catch(function (err) {
+                console.log(err);
+                conn.close();
+                res.status(501).json({
+                    message: "Execution Failed",
+                });
+        });
+    })
+    .catch(function (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "No Storage Connection",
+        });
+    });
+}
+
+exports.deleteAllAppUser = (req, res, next) => {
+    const conn = new msSql.ConnectionPool(config.dbConfig);
+
+    conn.connect().then(() => {
+        const sql = new msSql.Request(conn);
+
+        sql.query(
+            "DELETE FROM tbl_appusers WHERE cn_id = '"+ req.userData.canId +"'"
+        )
+        .then((resultSet) => {
+                conn.close();
+
+                //console.log(util.inspect(resultSet.rowsAffected, {showHidden: false, depth: null, colors: true}));
+
+                if (resultSet.rowsAffected.length === 0 || (resultSet.rowsAffected.length > 0 && resultSet.rowsAffected[0] === 0)) {
+                    res.status(500).json({
+                        type: "error",
+                        message: "Operation Failed",
+                    });
+                }
+                else {
+                    res.status(200).json({
+                        type: "success",
+                        message: "User Deleted Successfull",
+                    });
+                }
+            })
+            .catch(function (err) {
+                console.log(err);
+                conn.close();
+                res.status(501).json({
+                    message: "Execution Failed",
+                });
+        });
+    })
+    .catch(function (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "No Storage Connection",
+        });
+    });
+}
+
 exports.registerUser = (req, res, next) => {
     const conn = new msSql.ConnectionPool(config.dbConfig);
 }
